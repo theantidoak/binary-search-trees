@@ -11,8 +11,6 @@ const prettyPrint = (node, prefix = '', isLeft = true) => {
   }
 }
 
-const arr = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324];
-
 class Node {
   constructor(data) {
     this.data = data;
@@ -223,36 +221,34 @@ class Tree {
     return rootHeight - nodeHeight;
   }
 
-  isBalanced(node) {
+  isBalanced(node, check=true) {
     if (node == null) {
-      return;
+      return true;
+    }
+
+    if (check == false) {
+      return false;
     }
 
     if (node.left !== null) {
-      this.isBalanced(node.left);
-      
       const leftHeight = this.height(node.left);
-      const rightHeight = node.right == null ? null : this.height(node.right);
-      const diff = rightHeight ? leftHeight - rightHeight : null;
+      const rightHeight = this.height(node.right);
+      const diff = Math.abs(leftHeight - rightHeight);
 
-      if ((!rightHeight && this.depth(node.left) > 1) || (diff && diff > 1 && diff < -1)) {
-        return false;
-      }
+      check = diff > 1 ? false : true;
+      check = this.isBalanced(node.left, check);
     }
     
     if (node.right !== null) {
-      this.isBalanced(node.left);
-      
       const rightHeight = this.height(node.right);
-      const leftHeight = node.left == null ? null : this.height(node.left);
-      const diff = leftHeight ? rightHeight - leftHeight : null;
+      const leftHeight = this.height(node.left);
+      const diff = Math.abs(rightHeight - leftHeight);
 
-      if ((!leftHeight && this.depth(node.right) > 1) || (diff && diff > 1 && diff < -1)) {
-        return false;
-      }
+      check = diff > 1 ? false : true;
+      check = this.isBalanced(node.right, check);
     }
 
-    return true;
+    return check;
   }
 
   rebalance(node) {
@@ -260,7 +256,7 @@ class Tree {
       return;
     }
 
-    const balanced = isBalanced(node);
+    const balanced = this.isBalanced(node);
 
     if (!balanced) {
       const newSortedArray = this._removeDuplicates(this.preorder(node));
@@ -272,17 +268,46 @@ class Tree {
   }
 }
 
-const test = new Tree(arr);
+const arr = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324];
 
-test.insertNode(40);
-test.deleteNode(9);
+function driver(array) {
+  const tree = new Tree(array);
 
-prettyPrint(test.root);
+  const balanced = tree.isBalanced(tree.root);
+  const levelOrder = tree.levelOrder(tree.root);
+  const preorder = tree.preorder(tree.root);
+  const postorder = tree.postorder(tree.root);
+  const inorder = tree.inorder(tree.root);
+
+  // prettyPrint(tree.root);
+  console.log(balanced);
+  // console.log(levelOrder);
+  // console.log(preorder);
+  // console.log(postorder);
+  // console.log(inorder);
+
+  tree.insertNode(10);
+  tree.insertNode(11);
+  tree.insertNode(13);
+
+  const newBalanced = tree.isBalanced(tree.root);
+  console.log(newBalanced);
+
+  tree.rebalance(tree.root);
+
+  const finalBalanced = tree.isBalanced(tree.root);
+  const finalLevelOrder = tree.levelOrder(tree.root);
+  const finalPreorder = tree.preorder(tree.root);
+  const finalPostorder = tree.postorder(tree.root);
+  const finalInorder = tree.inorder(tree.root);
+
+  prettyPrint(tree.root);
 // prettyPrint(test.find(67));
+  console.log(finalBalanced);
+  console.log(finalLevelOrder);
+  console.log(finalPreorder);
+  console.log(finalPostorder);
+  console.log(finalInorder);
+}
 
-// console.log(test.inorder(test.root));
-// console.log(test.preorder(test.root));
-// console.log(test.postorder(test.root));
-// console.log(test.height(test.root));
-// console.log(test.depth(test.root.left.left.right));
-console.log(test.isBalanced(test.root))
+driver(arr)
